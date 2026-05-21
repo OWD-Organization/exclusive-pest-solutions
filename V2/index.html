@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bugfree - Pest Control</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            forest: '#1B4D2E',
+            brand: '#2D6A4F',
+            lime: '#D8F3A1',
+            'warm-sand': '#F5F0E8',
+            cream: '#FEFAE0',
+            charcoal: '#2B2D42',
+          },
+          fontFamily: {
+            display: ['Manrope', 'sans-serif'],
+            body: ['Inter', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', sans-serif; color: #2B2D42; background: #F5F0E8; overflow-x: hidden; }
+    h1,h2,h3,h4,h5,h6 { font-family: 'Manrope', sans-serif; }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #F5F0E8; }
+    ::-webkit-scrollbar-thumb { background: #2D6A4F; border-radius: 4px; }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulseScale {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    @keyframes drawLine {
+      from { stroke-dashoffset: 120; }
+      to { stroke-dashoffset: 0; }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .animate-pulse-scale { animation: pulseScale 2s ease-in-out infinite; }
+    .animate-fade-in-up {
+      opacity: 0;
+      animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-left {
+      opacity: 0;
+      transform: translateX(-40px);
+      transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+    }
+    .reveal-left.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .reveal-right {
+      opacity: 0;
+      transform: translateX(40px);
+      transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+    }
+    .reveal-right.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .reveal-scale {
+      opacity: 0;
+      transform: scale(0.9);
+      transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+    }
+    .reveal-scale.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .glass-card {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+  </style>
+</head>
+<body class="font-body">
+
+  <!-- Firefly Canvas -->
+  <canvas id="fireflyCanvas" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;pointer-events:none;"></canvas>
+
+  <!-- Content Layer -->
+  <div class="relative z-10">
+
+    <!-- Navbar -->
+    <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-[72px]">
+          <a href="#home" class="flex items-center gap-2">
+            <span class="w-10 h-10 rounded-full bg-lime flex items-center justify-center">
+              <i data-lucide="bug" class="w-5 h-5 text-forest"></i>
+            </span>
+            <span class="font-display font-bold text-xl text-forest">Bugfree</span>
+          </a>
+          <div class="hidden lg:flex items-center gap-8">
+            <a href="#home" class="flex items-center gap-1 text-sm font-medium text-charcoal hover:text-forest transition-colors">Home</a>
+            <a href="#about" class="flex items-center gap-1 text-sm font-medium text-charcoal hover:text-forest transition-colors">About Us</a>
+            <a href="#services" class="flex items-center gap-1 text-sm font-medium text-charcoal hover:text-forest transition-colors">Services</a>
+            <a href="#process" class="flex items-center gap-1 text-sm font-medium text-charcoal hover:text-forest transition-colors">Process</a>
+            <a href="#contact" class="flex items-center gap-1 text-sm font-medium text-charcoal hover:text-forest transition-colors">Contact Us</a>
+          </div>
+          <div class="hidden lg:block">
+            <a href="#contact" class="inline-flex items-center gap-2 px-6 py-3 bg-lime text-forest font-semibold text-sm rounded-lg hover:scale-[1.02] hover:brightness-105 transition-all">
+              Start Free Trial
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </a>
+          </div>
+          <button id="menuBtn" class="lg:hidden p-2 text-forest">
+            <i data-lucide="menu" class="w-6 h-6"></i>
+          </button>
+        </div>
+      </div>
+      <div id="mobileMenu" class="hidden lg:hidden bg-white/95 border-t border-gray-100">
+        <div class="px-4 py-4 space-y-3">
+          <a href="#home" class="block py-2 text-sm font-medium text-charcoal mobile-link">Home</a>
+          <a href="#about" class="block py-2 text-sm font-medium text-charcoal mobile-link">About Us</a>
+          <a href="#services" class="block py-2 text-sm font-medium text-charcoal mobile-link">Services</a>
+          <a href="#process" class="block py-2 text-sm font-medium text-charcoal mobile-link">Process</a>
+          <a href="#contact" class="block py-2 text-sm font-medium text-charcoal mobile-link">Contact Us</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="relative min-h-screen flex items-center overflow-hidden">
+      <video autoplay muted loop playsInline class="absolute inset-0 w-full h-full object-cover" poster="images/about-technician.jpg">
+        <source src="videos/hero-pest-control.mp4" type="video/mp4">
+      </video>
+      <div class="absolute inset-0" style="background: linear-gradient(to right, rgba(27,77,46,0.88) 0%, rgba(27,77,46,0.65) 50%, rgba(27,77,46,0.35) 100%);"></div>
+      <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 pt-40 w-full">
+        <div class="max-w-2xl">
+          <div class="animate-fade-in-up" style="animation-delay:0.2s">
+            <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide uppercase bg-lime text-forest">
+              <span class="w-1.5 h-1.5 rounded-full bg-forest"></span>
+              Trusted Pest Professionals
+            </span>
+          </div>
+          <h1 class="font-display font-extrabold text-white text-4xl sm:text-5xl lg:text-6xl leading-[1.1] mt-6 mb-5 animate-fade-in-up" style="animation-delay:0.4s">
+            Protecting homes with expert pest control
+          </h1>
+          <p class="text-white/80 text-base sm:text-lg leading-relaxed mb-8 max-w-xl animate-fade-in-up" style="animation-delay:0.6s">
+            Our trained specialists uses advanced, eco-friendly solutions to tackle everything from termites and rodents to mosquitoes and cockroaches.
+          </p>
+          <div class="flex flex-wrap gap-4 sm:gap-8 mb-8 animate-fade-in-up" style="animation-delay:0.8s">
+            <div class="flex items-center gap-3">
+              <span class="w-10 h-10 rounded-full bg-lime flex items-center justify-center flex-shrink-0">
+                <i data-lucide="sprout" class="w-[18px] h-[18px] text-forest"></i>
+              </span>
+              <span class="font-medium text-white text-sm">Safe & Eco-Friendly Treatments</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="w-10 h-10 rounded-full bg-lime flex items-center justify-center flex-shrink-0">
+                <i data-lucide="leaf" class="w-[18px] h-[18px] text-forest"></i>
+              </span>
+              <span class="font-medium text-white text-sm">Safe & Eco-Friendly Treatments</span>
+            </div>
+          </div>
+          <div class="flex flex-wrap items-center gap-4 animate-fade-in-up" style="animation-delay:1.0s">
+            <a href="#contact" class="inline-flex items-center gap-2 px-7 py-4 bg-lime text-forest font-semibold rounded-lg hover:scale-[1.02] hover:brightness-105 transition-all">
+              Get Pest Free Today
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </a>
+            <button class="flex items-center gap-3 group">
+              <span class="w-14 h-14 rounded-full bg-lime flex items-center justify-center group-hover:scale-110 transition-transform">
+                <i data-lucide="play" class="w-5 h-5 text-forest ml-1" fill="currentColor"></i>
+              </span>
+              <span class="font-medium text-white">Watch Video</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="absolute right-8 top-1/2 -translate-y-1/2 hidden lg:flex flex-col gap-2">
+        <span class="w-2 h-2 rounded-full bg-lime/80"></span>
+        <span class="w-2 h-2 rounded-full bg-lime/60"></span>
+        <span class="w-2 h-2 rounded-full bg-lime/40"></span>
+        <span class="w-2 h-2 rounded-full bg-lime/20"></span>
+      </div>
+    </section>
+
+    <!-- Trusted Bar -->
+    <div class="bg-warm-sand border-y border-gray-100 py-6">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col lg:flex-row items-center justify-between gap-6">
+          <p class="text-sm text-gray-500 font-body text-center lg:text-left max-w-xs">
+            Your trusted partner for a healthier, safer, and pest-free living environment.
+          </p>
+          <div class="flex flex-wrap items-center justify-center gap-8 lg:gap-10 text-forest">
+            <svg viewBox="0 0 120 30" class="h-6 w-auto opacity-50"><circle cx="15" cy="15" r="10" fill="currentColor" opacity="0.3"/><text x="32" y="20" font-size="14" font-weight="600" fill="currentColor">Logoipsum</text></svg>
+            <svg viewBox="0 0 120 30" class="h-6 w-auto opacity-50"><rect x="5" y="8" width="14" height="14" rx="3" fill="currentColor" opacity="0.3"/><text x="26" y="20" font-size="14" font-weight="600" fill="currentColor">Logoipsum</text></svg>
+            <svg viewBox="0 0 120 30" class="h-6 w-auto opacity-50"><polygon points="15,5 25,25 5,25" fill="currentColor" opacity="0.3"/><text x="32" y="20" font-size="14" font-weight="600" fill="currentColor">Logoipsum</text></svg>
+            <svg viewBox="0 0 120 30" class="h-6 w-auto opacity-50"><circle cx="12" cy="15" r="8" fill="currentColor" opacity="0.3"/><circle cx="20" cy="15" r="8" fill="currentColor" opacity="0.2"/><text x="35" y="20" font-size="14" font-weight="600" fill="currentColor">Logoipsum</text></svg>
+            <svg viewBox="0 0 120 30" class="h-6 w-auto opacity-50 hidden sm:block"><rect x="5" y="10" width="20" height="10" rx="5" fill="currentColor" opacity="0.3"/><text x="32" y="20" font-size="14" font-weight="600" fill="currentColor">Logoipsum</text></svg>
+            <svg viewBox="0 0 120 30" class="h-6 w-auto opacity-50 hidden md:block"><path d="M5 15 Q15 5 25 15 Q15 25 5 15" fill="currentColor" opacity="0.3"/><text x="32" y="20" font-size="14" font-weight="600" fill="currentColor">Logoipsum</text></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- About Section -->
+    <section id="about" class="bg-warm-sand py-20 lg:py-28 relative overflow-hidden">
+      <svg class="absolute -left-20 top-20 w-64 h-64 opacity-[0.04] pointer-events-none" viewBox="0 0 100 100"><ellipse cx="50" cy="50" rx="40" ry="30" stroke="#1B4D2E" stroke-width="0.5" fill="none"/><line x1="10" y1="50" x2="90" y2="50" stroke="#1B4D2E" stroke-width="0.5"/><line x1="50" y1="10" x2="50" y2="90" stroke="#1B4D2E" stroke-width="0.5"/></svg>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          <div class="reveal-left relative">
+            <div class="relative z-10">
+              <img src="images/about-technician.jpg" alt="Pest control technician" class="w-full max-w-md mx-auto lg:mx-0 rounded-2xl border-4 border-warm-sand shadow-lg object-cover aspect-[4/5]">
+            </div>
+            <img src="images/about-cockroach.jpg" alt="Cockroach close-up" class="absolute -bottom-8 -left-4 lg:left-8 w-48 sm:w-64 rounded-xl border-4 border-warm-sand shadow-lg object-cover aspect-video z-20">
+          </div>
+          <div class="lg:pl-8 pt-12 lg:pt-0 reveal" data-delay="200">
+            <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide uppercase bg-lime text-forest">
+              <span class="w-1.5 h-1.5 rounded-full bg-forest"></span>
+              About Us
+            </span>
+            <h2 class="font-display font-bold text-forest text-3xl lg:text-4xl mt-4 mb-4 leading-tight">
+              Dedicated to protecting your home from pests
+            </h2>
+            <p class="text-gray-500 leading-relaxed mb-3">
+              Dedicated to protecting your home from pests Our mission is to provide comprehensive and reliable pest control solutions that ensure the safety and comfort of your home.
+            </p>
+            <p class="text-gray-500 leading-relaxed mb-6">
+              Our mission is to provide comprehensive.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-6 mb-6">
+              <img src="images/about-treatment.jpg" alt="Treatment in progress" class="w-full sm:w-40 rounded-xl object-cover aspect-video flex-shrink-0">
+              <div class="space-y-3">
+                <div class="flex items-center gap-3"><span class="flex-shrink-0 w-5 h-5 rounded-full bg-lime flex items-center justify-center"><i data-lucide="check" class="w-3 h-3 text-forest" stroke-width="3"></i></span><span class="text-sm text-gray-500">Certified & Experienced Technicians</span></div>
+                <div class="flex items-center gap-3"><span class="flex-shrink-0 w-5 h-5 rounded-full bg-lime flex items-center justify-center"><i data-lucide="check" class="w-3 h-3 text-forest" stroke-width="3"></i></span><span class="text-sm text-gray-500">Advanced Detection & Removal Methods</span></div>
+                <div class="flex items-center gap-3"><span class="flex-shrink-0 w-5 h-5 rounded-full bg-lime flex items-center justify-center"><i data-lucide="check" class="w-3 h-3 text-forest" stroke-width="3"></i></span><span class="text-sm text-gray-500">Transparent Pricing & No Hidden Costs</span></div>
+              </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-6">
+              <div>
+                <span class="font-display font-bold text-brand text-4xl">25+</span>
+                <p class="text-sm text-gray-500 mt-1">Providing expert pest control<br>solutions for over a decade.</p>
+              </div>
+              <a href="#services" class="inline-flex items-center gap-2 px-6 py-3 bg-lime text-forest font-semibold text-sm rounded-lg hover:scale-[1.02] hover:brightness-105 transition-all">
+                Learn More About
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="bg-white py-20 lg:py-28">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-14">
+          <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide uppercase bg-lime text-forest">
+            <span class="w-1.5 h-1.5 rounded-full bg-forest"></span>
+            Our Services
+          </span>
+          <h2 class="font-display font-bold text-forest text-3xl lg:text-4xl mt-4 max-w-xl mx-auto leading-tight">
+            Safe and reliable pest control services solutions
+          </h2>
+        </div>
+        <div class="grid md:grid-cols-3 gap-6 lg:gap-8">
+          <!-- Service Card 1 -->
+          <div class="reveal group bg-warm-sand rounded-2xl p-6 text-center border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300" data-delay="0">
+            <div class="relative mx-auto mb-6">
+              <div class="w-48 h-48 mx-auto rounded-full overflow-hidden bg-forest/10 border-2 border-lime/30">
+                <img src="images/service-residential.jpg" alt="Residential Pest Control" class="w-full h-full object-cover">
+              </div>
+              <span class="absolute -bottom-4 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full bg-lime flex items-center justify-center animate-pulse-scale">
+                <i data-lucide="sprout" class="w-5 h-5 text-forest"></i>
+              </span>
+            </div>
+            <h3 class="font-display font-semibold text-forest text-lg mt-6 mb-2">Residential Pest Control</h3>
+            <p class="text-gray-500 text-sm mb-4 max-w-xs mx-auto">Our residential solutions effectively control common household pests.</p>
+            <a href="#" class="inline-flex items-center gap-1 text-brand font-medium text-sm hover:underline">Learn More <i data-lucide="arrow-right" class="w-4 h-4"></i></a>
+          </div>
+          <!-- Service Card 2 -->
+          <div class="reveal group bg-warm-sand rounded-2xl p-6 text-center border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300" data-delay="150">
+            <div class="relative mx-auto mb-6">
+              <div class="w-48 h-48 mx-auto rounded-full overflow-hidden bg-forest/10 border-2 border-lime/30">
+                <img src="images/service-bedbug.jpg" alt="Bed Bug Treatment" class="w-full h-full object-cover">
+              </div>
+              <span class="absolute -bottom-4 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full bg-lime flex items-center justify-center animate-pulse-scale" style="animation-delay:0.3s">
+                <i data-lucide="bug" class="w-5 h-5 text-forest"></i>
+              </span>
+            </div>
+            <h3 class="font-display font-semibold text-forest text-lg mt-6 mb-2">Bed Bug Treatment</h3>
+            <p class="text-gray-500 text-sm mb-4 max-w-xs mx-auto">Our residential solutions effectively control common household pests.</p>
+            <a href="#" class="inline-flex items-center gap-1 text-brand font-medium text-sm hover:underline">Learn More <i data-lucide="arrow-right" class="w-4 h-4"></i></a>
+          </div>
+          <!-- Service Card 3 -->
+          <div class="reveal group bg-warm-sand rounded-2xl p-6 text-center border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300" data-delay="300">
+            <div class="relative mx-auto mb-6">
+              <div class="w-48 h-48 mx-auto rounded-full overflow-hidden bg-forest/10 border-2 border-lime/30">
+                <img src="images/service-roach.jpg" alt="Cockroach & Ant Control" class="w-full h-full object-cover">
+              </div>
+              <span class="absolute -bottom-4 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full bg-lime flex items-center justify-center animate-pulse-scale" style="animation-delay:0.6s">
+                <i data-lucide="shield-check" class="w-5 h-5 text-forest"></i>
+              </span>
+            </div>
+            <h3 class="font-display font-semibold text-forest text-lg mt-6 mb-2">Cockroach & Ant Control</h3>
+            <p class="text-gray-500 text-sm mb-4 max-w-xs mx-auto">Our residential solutions effectively control common household pests.</p>
+            <a href="#" class="inline-flex items-center gap-1 text-brand font-medium text-sm hover:underline">Learn More <i data-lucide="arrow-right" class="w-4 h-4"></i></a>
+          </div>
+        </div>
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-6 mt-12 pt-8 border-t border-gray-100">
+          <div class="flex items-center gap-3">
+            <span class="w-10 h-10 rounded-full bg-lime/20 flex items-center justify-center"><i data-lucide="sprout" class="w-[18px] h-[18px] text-brand"></i></span>
+            <p class="text-sm text-gray-500">Advanced pest control solutions for safe, clean, and protected spaces <a href="#" class="text-brand font-medium hover:underline">View All Services</a></p>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="font-display font-bold text-forest text-lg">4.9/5</span>
+            <div class="flex gap-0.5">
+              <i data-lucide="star" class="w-3.5 h-3.5 text-lime fill-lime"></i>
+              <i data-lucide="star" class="w-3.5 h-3.5 text-lime fill-lime"></i>
+              <i data-lucide="star" class="w-3.5 h-3.5 text-lime fill-lime"></i>
+              <i data-lucide="star" class="w-3.5 h-3.5 text-lime fill-lime"></i>
+              <i data-lucide="star" class="w-3.5 h-3.5 text-lime fill-lime"></i>
+            </div>
+            <span class="text-sm text-gray-500">Over 4200 Reviews</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Why Choose Us Section -->
+    <section class="bg-warm-sand py-20 lg:py-28">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          <div class="reveal">
+            <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide uppercase bg-lime text-forest">
+              <span class="w-1.5 h-1.5 rounded-full bg-forest"></span>
+              Why Choose Us
+            </span>
+            <h2 class="font-display font-bold text-forest text-3xl lg:text-4xl mt-4 mb-4 leading-tight">
+              Why choose us for reliable affordable pest control
+            </h2>
+            <p class="text-gray-500 leading-relaxed mb-8">
+              Our experienced technicians use proven methods and eco-friendly treatments to deliver reliable, long-lasting results. With transparent pricing.
+            </p>
+            <div class="grid sm:grid-cols-2 gap-6 mb-8">
+              <div class="flex items-start gap-3">
+                <span class="w-12 h-12 rounded-full bg-lime flex items-center justify-center flex-shrink-0"><i data-lucide="search" class="w-5 h-5 text-forest"></i></span>
+                <div>
+                  <h4 class="font-display font-semibold text-forest mb-1">Safe for Children</h4>
+                  <p class="text-sm text-gray-500">Our pest control designed to be safe for children, ensuring.</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-3">
+                <span class="w-12 h-12 rounded-full bg-lime flex items-center justify-center flex-shrink-0"><i data-lucide="tag" class="w-5 h-5 text-forest"></i></span>
+                <div>
+                  <h4 class="font-display font-semibold text-forest mb-1">Transparent Pricing</h4>
+                  <p class="text-sm text-gray-500">Our pest control designed to be safe for children, ensuring.</p>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center gap-4 p-4 bg-white/60 rounded-xl">
+              <img src="images/choose-technician.jpg" alt="Rahul Mehta" class="w-12 h-12 rounded-full object-cover">
+              <div>
+                <p class="font-display font-semibold text-forest text-sm">Rahul Mehta - CEO, Pest Technician</p>
+                <p class="text-sm text-gray-500 italic">"Award-winning pest control company with 25+ years of trusted experience."</p>
+              </div>
+            </div>
+          </div>
+          <div class="reveal-right relative">
+            <div class="relative">
+              <img src="images/choose-technician.jpg" alt="Technician giving thumbs up" class="w-full max-w-md mx-auto rounded-2xl object-cover aspect-[3/4]">
+              <img src="images/choose-mosquito.jpg" alt="Mosquito close-up" class="absolute -top-6 -right-4 w-32 h-32 lg:w-40 lg:h-40 rounded-xl object-cover border-4 border-warm-sand shadow-lg">
+              <div class="absolute -bottom-6 -right-2 lg:right-4 bg-lime rounded-2xl p-5 shadow-lg">
+                <span class="font-display font-extrabold text-forest text-4xl lg:text-5xl">95%</span>
+                <p class="font-medium text-forest text-sm mt-1">Pest Control Success<br>Rate</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Core Features Section -->
+    <section class="bg-forest py-20 lg:py-28 relative overflow-hidden">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="text-center mb-14">
+          <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide uppercase bg-white/20 text-white backdrop-blur-sm">
+            <span class="w-1.5 h-1.5 rounded-full bg-lime"></span>
+            Core Feature
+          </span>
+          <h2 class="font-display font-bold text-white text-3xl lg:text-4xl mt-4 max-w-2xl mx-auto leading-tight">
+            Core features that set our pest control services apart
+          </h2>
+        </div>
+        <div class="grid md:grid-cols-3 gap-6">
+          <!-- Card 1 -->
+          <div class="reveal glass-card rounded-2xl p-6 lg:p-8 hover:-translate-y-0.5 transition-all duration-500" data-delay="0">
+            <span class="w-14 h-14 rounded-full bg-lime flex items-center justify-center mb-5">
+              <i data-lucide="shield" class="w-6 h-6 text-forest"></i>
+            </span>
+            <h3 class="font-display font-semibold text-white text-xl mb-2">Safe for Children</h3>
+            <p class="text-white/70 text-sm mb-5">We use carefully selected, that are tough on pests while.</p>
+            <ul class="space-y-2">
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-lime flex-shrink-0"></i><span class="text-white/80 text-sm">Child-Safe Treatment Method</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-lime flex-shrink-0"></i><span class="text-white/80 text-sm">Low-Odor, Safe Applications</span></li>
+            </ul>
+          </div>
+          <!-- Card 2 -->
+          <div class="reveal glass-card rounded-2xl p-6 lg:p-8 hover:-translate-y-0.5 transition-all duration-500" data-delay="120">
+            <span class="w-14 h-14 rounded-full bg-lime flex items-center justify-center mb-5">
+              <i data-lucide="search" class="w-6 h-6 text-forest"></i>
+            </span>
+            <h3 class="font-display font-semibold text-white text-xl mb-2">Advanced Pest Detection</h3>
+            <p class="text-white/70 text-sm mb-5">We use carefully selected, that are tough on pests while.</p>
+            <ul class="space-y-2">
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-lime flex-shrink-0"></i><span class="text-white/80 text-sm">Carefully Tested Products</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-lime flex-shrink-0"></i><span class="text-white/80 text-sm">Family Service Standards</span></li>
+            </ul>
+          </div>
+          <!-- Card 3 -->
+          <div class="reveal glass-card rounded-2xl p-6 lg:p-8 hover:-translate-y-0.5 transition-all duration-500" data-delay="240">
+            <span class="w-14 h-14 rounded-full bg-lime flex items-center justify-center mb-5">
+              <i data-lucide="clock" class="w-6 h-6 text-forest"></i>
+            </span>
+            <h3 class="font-display font-semibold text-white text-xl mb-2">Same-Day Service</h3>
+            <p class="text-white/70 text-sm mb-5">We use carefully selected, that are tough on pests while.</p>
+            <ul class="space-y-2">
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-lime flex-shrink-0"></i><span class="text-white/80 text-sm">Child-Approved Solutions</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-lime flex-shrink-0"></i><span class="text-white/80 text-sm">Safe Indoor Applications</span></li>
+            </ul>
+          </div>
+        </div>
+        <p class="text-center text-white/80 font-medium mt-10 mb-8">Certified and Licensed Pest Control Experts</p>
+        <div class="flex flex-wrap items-center justify-center gap-8 lg:gap-12">
+          <div class="flex items-center gap-2 text-white/70"><i data-lucide="zap" class="w-5 h-5 text-lime"></i><span class="font-medium text-sm">Logoipsum</span></div>
+          <div class="flex items-center gap-2 text-white/70"><i data-lucide="award" class="w-5 h-5 text-lime"></i><span class="font-medium text-sm">Logoipsum</span></div>
+          <div class="flex items-center gap-2 text-white/70"><i data-lucide="leaf" class="w-5 h-5 text-lime"></i><span class="font-medium text-sm">Logoipsum</span></div>
+          <div class="flex items-center gap-2 text-white/70"><i data-lucide="bug" class="w-5 h-5 text-lime"></i><span class="font-medium text-sm">Logoipsum</span></div>
+          <div class="flex items-center gap-2 text-white/70"><i data-lucide="droplets" class="w-5 h-5 text-lime"></i><span class="font-medium text-sm">Logoipsum</span></div>
+          <div class="flex items-center gap-2 text-white/70"><i data-lucide="shield" class="w-5 h-5 text-lime"></i><span class="font-medium text-sm">Logoipsum</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pest Types Section -->
+    <section class="bg-warm-sand py-16 lg:py-20">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide uppercase bg-lime text-forest">
+            <span class="w-1.5 h-1.5 rounded-full bg-forest"></span>
+            Protected / Safety
+          </span>
+          <h2 class="font-display font-bold text-forest text-3xl lg:text-4xl mt-4 leading-tight">
+            Protecting your home with expert pest control
+          </h2>
+        </div>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
+          <div class="reveal-scale text-center pest-item" data-delay="0">
+            <div class="relative w-40 h-40 lg:w-48 lg:h-48 mx-auto rounded-full bg-warm-sand border-2 border-lime flex items-center justify-center overflow-hidden">
+              <svg class="absolute inset-0 w-full h-full pointer-events-none z-10" viewBox="0 0 100 100">
+                <line class="prohibition-line" x1="20" y1="20" x2="80" y2="80" stroke="#EF4444" stroke-width="3" stroke-linecap="round" style="stroke-dasharray:120;stroke-dashoffset:120"/>
+              </svg>
+              <img src="images/pest-cockroach.png" alt="Cockroaches" class="w-28 h-28 lg:w-36 lg:h-36 object-contain">
+            </div>
+            <h3 class="font-display font-semibold text-forest text-base mt-4">Cockroaches</h3>
+          </div>
+          <div class="reveal-scale text-center pest-item" data-delay="100">
+            <div class="relative w-40 h-40 lg:w-48 lg:h-48 mx-auto rounded-full bg-warm-sand border-2 border-lime flex items-center justify-center overflow-hidden">
+              <svg class="absolute inset-0 w-full h-full pointer-events-none z-10" viewBox="0 0 100 100">
+                <line class="prohibition-line" x1="20" y1="20" x2="80" y2="80" stroke="#EF4444" stroke-width="3" stroke-linecap="round" style="stroke-dasharray:120;stroke-dashoffset:120"/>
+              </svg>
+              <img src="images/pest-mosquito.png" alt="Mosquitoes" class="w-28 h-28 lg:w-36 lg:h-36 object-contain">
+            </div>
+            <h3 class="font-display font-semibold text-forest text-base mt-4">Mosquitoes</h3>
+          </div>
+          <div class="reveal-scale text-center pest-item" data-delay="200">
+            <div class="relative w-40 h-40 lg:w-48 lg:h-48 mx-auto rounded-full bg-warm-sand border-2 border-lime flex items-center justify-center overflow-hidden">
+              <svg class="absolute inset-0 w-full h-full pointer-events-none z-10" viewBox="0 0 100 100">
+                <line class="prohibition-line" x1="20" y1="20" x2="80" y2="80" stroke="#EF4444" stroke-width="3" stroke-linecap="round" style="stroke-dasharray:120;stroke-dashoffset:120"/>
+              </svg>
+              <img src="images/pest-bedbug.png" alt="Bed Bugs" class="w-28 h-28 lg:w-36 lg:h-36 object-contain">
+            </div>
+            <h3 class="font-display font-semibold text-forest text-base mt-4">Bed Bugs</h3>
+          </div>
+          <div class="reveal-scale text-center pest-item" data-delay="300">
+            <div class="relative w-40 h-40 lg:w-48 lg:h-48 mx-auto rounded-full bg-warm-sand border-2 border-lime flex items-center justify-center overflow-hidden">
+              <svg class="absolute inset-0 w-full h-full pointer-events-none z-10" viewBox="0 0 100 100">
+                <line class="prohibition-line" x1="20" y1="20" x2="80" y2="80" stroke="#EF4444" stroke-width="3" stroke-linecap="round" style="stroke-dasharray:120;stroke-dashoffset:120"/>
+              </svg>
+              <img src="images/pest-spider.png" alt="Spiders" class="w-28 h-28 lg:w-36 lg:h-36 object-contain">
+            </div>
+            <h3 class="font-display font-semibold text-forest text-base mt-4">Spiders</h3>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="bg-warm-sand py-14 lg:py-16">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h3 class="font-display font-semibold text-forest text-xl text-center mb-10">
+          Amazing Facts About Common Pests
+        </h3>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+          <div class="text-center stat-item" data-target="95" data-suffix="%">
+            <span class="w-12 h-12 rounded-full bg-lime flex items-center justify-center mx-auto mb-3">
+              <i data-lucide="trophy" class="w-[22px] h-[22px] text-forest"></i>
+            </span>
+            <div class="font-display font-extrabold text-forest text-3xl lg:text-4xl"><span class="counter">0</span>%</div>
+            <p class="text-sm text-gray-500 mt-1">Pest Control Success Rate</p>
+          </div>
+          <div class="text-center stat-item" data-target="4.5" data-suffix="K" data-decimal="true">
+            <span class="w-12 h-12 rounded-full bg-lime flex items-center justify-center mx-auto mb-3">
+              <i data-lucide="bug" class="w-[22px] h-[22px] text-forest"></i>
+            </span>
+            <div class="font-display font-extrabold text-forest text-3xl lg:text-4xl"><span class="counter">0.0</span>K</div>
+            <p class="text-sm text-gray-500 mt-1">Cockroaches exist worldwide</p>
+          </div>
+          <div class="text-center">
+            <span class="w-12 h-12 rounded-full bg-lime flex items-center justify-center mx-auto mb-3">
+              <i data-lucide="clock" class="w-[22px] h-[22px] text-forest"></i>
+            </span>
+            <div class="font-display font-extrabold text-forest text-3xl lg:text-4xl">24/7</div>
+            <p class="text-sm text-gray-500 mt-1">Termites work nonstops</p>
+          </div>
+          <div class="text-center stat-item" data-target="300" data-suffix="">
+            <span class="w-12 h-12 rounded-full bg-lime flex items-center justify-center mx-auto mb-3">
+              <i data-lucide="egg" class="w-[22px] h-[22px] text-forest"></i>
+            </span>
+            <div class="font-display font-extrabold text-forest text-3xl lg:text-4xl"><span class="counter">0</span></div>
+            <p class="text-sm text-gray-500 mt-1">Eggs a single female mosquito</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Process Section -->
+    <section id="process" class="bg-white py-20 lg:py-28">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          <div class="reveal">
+            <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide uppercase bg-lime text-forest">
+              <span class="w-1.5 h-1.5 rounded-full bg-forest"></span>
+              Pest Control Process
+            </span>
+            <h2 class="font-display font-bold text-forest text-3xl lg:text-4xl mt-4 mb-4 leading-tight">
+              Our Pest Control Process for Safe & Effective Results
+            </h2>
+            <p class="text-gray-500 leading-relaxed mb-6">
+              Our experienced technicians use proven methods and eco-friendly treatments to deliver reliable, long-lasting results. With transparent pricing.
+            </p>
+            <div class="flex flex-wrap gap-4 mb-8">
+              <div class="flex items-center gap-3"><span class="flex-shrink-0 w-5 h-5 rounded-full bg-lime flex items-center justify-center"><i data-lucide="check" class="w-3 h-3 text-forest" stroke-width="3"></i></span><span class="text-sm text-gray-500">Certified & Experienced Technicians</span></div>
+              <div class="flex items-center gap-3"><span class="flex-shrink-0 w-5 h-5 rounded-full bg-lime flex items-center justify-center"><i data-lucide="check" class="w-3 h-3 text-forest" stroke-width="3"></i></span><span class="text-sm text-gray-500">Long-term prevention & monitoring</span></div>
+            </div>
+            <div class="grid grid-cols-2 gap-4 mb-8">
+              <div class="bg-white rounded-xl p-4 shadow-md border border-gray-50">
+                <span class="w-8 h-8 rounded-full bg-lime flex items-center justify-center text-forest font-display font-bold text-sm mb-2">01</span>
+                <h4 class="font-display font-semibold text-forest mb-1">Inspection</h4>
+                <p class="text-xs text-gray-500">Identify pest activity and entry points.</p>
+              </div>
+              <div class="bg-white rounded-xl p-4 shadow-md border border-gray-50">
+                <span class="w-8 h-8 rounded-full bg-lime flex items-center justify-center text-forest font-display font-bold text-sm mb-2">02</span>
+                <h4 class="font-display font-semibold text-forest mb-1">Treatment Plan</h4>
+                <p class="text-xs text-gray-500">Identify pest activity and entry points.</p>
+              </div>
+              <div class="bg-white rounded-xl p-4 shadow-md border border-gray-50">
+                <span class="w-8 h-8 rounded-full bg-lime flex items-center justify-center text-forest font-display font-bold text-sm mb-2">03</span>
+                <h4 class="font-display font-semibold text-forest mb-1">Prevention</h4>
+                <p class="text-xs text-gray-500">Seal entry points and eliminate attractants.</p>
+              </div>
+              <div class="bg-white rounded-xl p-4 shadow-md border border-gray-50">
+                <span class="w-8 h-8 rounded-full bg-lime flex items-center justify-center text-forest font-display font-bold text-sm mb-2">04</span>
+                <h4 class="font-display font-semibold text-forest mb-1">Monitoring</h4>
+                <p class="text-xs text-gray-500">Regular follow-up visits and maintenance.</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="font-display font-bold text-forest text-lg">4.9/5</span>
+              <div class="flex gap-0.5">
+                <i data-lucide="star" class="w-3.5 h-3.5 text-lime fill-lime"></i>
+                <i data-lucide="star" class="w-3.5 h-3.5 text-lime fill-lime"></i>
+                <i data-lucide="star" class="w-3.5 h-3.5 text-lime fill-lime"></i>
+                <i data-lucide="star" class="w-3.5 h-3.5 text-lime fill-lime"></i>
+                <i data-lucide="star" class="w-3.5 h-3.5 text-lime fill-lime"></i>
+              </div>
+              <span class="text-sm text-gray-500">Our 4200 Reviews</span>
+            </div>
+          </div>
+          <div class="reveal-right relative">
+            <img src="images/process-technicians.jpg" alt="Technicians at work" class="w-full rounded-2xl object-cover aspect-[4/3]">
+            <div class="absolute bottom-6 left-6 bg-white rounded-xl p-4 shadow-lg">
+              <div class="flex items-center gap-3">
+                <div>
+                  <span class="font-display font-bold text-forest text-lg">4.9/5</span>
+                  <div class="flex gap-0.5">
+                    <i data-lucide="star" class="w-2.5 h-2.5 text-lime fill-lime"></i>
+                    <i data-lucide="star" class="w-2.5 h-2.5 text-lime fill-lime"></i>
+                    <i data-lucide="star" class="w-2.5 h-2.5 text-lime fill-lime"></i>
+                    <i data-lucide="star" class="w-2.5 h-2.5 text-lime fill-lime"></i>
+                    <i data-lucide="star" class="w-2.5 h-2.5 text-lime fill-lime"></i>
+                  </div>
+                </div>
+                <div class="flex -space-x-2">
+                  <div class="w-8 h-8 rounded-full bg-brand/20 border-2 border-white flex items-center justify-center text-xs font-bold text-brand">A</div>
+                  <div class="w-8 h-8 rounded-full bg-brand/20 border-2 border-white flex items-center justify-center text-xs font-bold text-brand">B</div>
+                  <div class="w-8 h-8 rounded-full bg-brand/20 border-2 border-white flex items-center justify-center text-xs font-bold text-brand">C</div>
+                  <div class="w-8 h-8 rounded-full bg-brand/20 border-2 border-white flex items-center justify-center text-xs font-bold text-brand">D</div>
+                  <div class="w-8 h-8 rounded-full bg-lime border-2 border-white flex items-center justify-center text-xs font-bold text-forest">+</div>
+                </div>
+                <div>
+                  <p class="text-sm font-display font-semibold text-forest">5k+</p>
+                  <p class="text-xs text-gray-500">Our Customers</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="bg-forest py-20 lg:py-28 relative overflow-hidden rounded-t-3xl">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+          <div class="reveal-left relative">
+            <img src="images/testimonial-technician.jpg" alt="Technician at work" class="w-full max-w-md mx-auto lg:mx-0 rounded-2xl object-cover aspect-[3/4]">
+            <div class="absolute bottom-6 left-6 lg:left-8 bg-white rounded-xl p-4 shadow-lg">
+              <div class="flex items-center gap-4">
+                <div>
+                  <span class="font-display font-bold text-forest text-lg">4.9/5</span>
+                  <div class="flex gap-0.5">
+                    <i data-lucide="star" class="w-2.5 h-2.5 text-lime fill-lime"></i>
+                    <i data-lucide="star" class="w-2.5 h-2.5 text-lime fill-lime"></i>
+                    <i data-lucide="star" class="w-2.5 h-2.5 text-lime fill-lime"></i>
+                    <i data-lucide="star" class="w-2.5 h-2.5 text-lime fill-lime"></i>
+                    <i data-lucide="star" class="w-2.5 h-2.5 text-lime fill-lime"></i>
+                  </div>
+                </div>
+                <div class="flex -space-x-2">
+                  <div class="w-7 h-7 rounded-full bg-brand/20 border-2 border-white flex items-center justify-center text-[10px] font-bold text-brand">A</div>
+                  <div class="w-7 h-7 rounded-full bg-brand/20 border-2 border-white flex items-center justify-center text-[10px] font-bold text-brand">B</div>
+                  <div class="w-7 h-7 rounded-full bg-brand/20 border-2 border-white flex items-center justify-center text-[10px] font-bold text-brand">C</div>
+                  <div class="w-7 h-7 rounded-full bg-lime border-2 border-white flex items-center justify-center text-[10px] font-bold text-forest">+</div>
+                </div>
+                <div>
+                  <p class="text-sm font-display font-semibold text-forest">5k+</p>
+                  <p class="text-xs text-gray-500">Our Customers</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="reveal-right">
+            <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide uppercase bg-white/20 text-white backdrop-blur-sm mb-4">
+              <span class="w-1.5 h-1.5 rounded-full bg-lime"></span>
+              What Client Says
+            </span>
+            <h2 class="font-display font-bold text-white text-3xl lg:text-4xl mb-4 leading-tight">
+              What our customers say about pest control
+            </h2>
+            <div class="flex gap-1 mb-4">
+              <i data-lucide="star" class="w-4.5 h-4.5 text-lime fill-lime"></i>
+              <i data-lucide="star" class="w-4.5 h-4.5 text-lime fill-lime"></i>
+              <i data-lucide="star" class="w-4.5 h-4.5 text-lime fill-lime"></i>
+              <i data-lucide="star" class="w-4.5 h-4.5 text-lime fill-lime"></i>
+              <i data-lucide="star" class="w-4.5 h-4.5 text-lime fill-lime"></i>
+            </div>
+            <div id="testimonialContent">
+              <p class="text-white/85 leading-relaxed mb-6 text-base">
+                Excellent service from start to finish. The team was professional, punctual and completely eliminated our pest problem. Highly recommended reliable & affordable pest control services. They follow safety standards strictly, which is crucial for our business. Very happy with the results. The technicians were knowledgeable & explained everything clearly. Fast response!
+              </p>
+              <div class="flex items-center gap-3 mb-6">
+                <div class="w-12 h-12 rounded-full bg-lime flex items-center justify-center">
+                  <span class="font-display font-bold text-forest">M</span>
+                </div>
+                <div>
+                  <p class="font-display font-semibold text-white">Michael Brown</p>
+                  <p class="text-sm text-white/60">Pest Control Technician</p>
+                </div>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <button onclick="setTestimonial(0)" class="testimonial-dot h-2 rounded-full bg-lime transition-all w-6" data-index="0"></button>
+              <button onclick="setTestimonial(1)" class="testimonial-dot h-2 rounded-full bg-white/40 hover:bg-white/60 transition-all w-2" data-index="1"></button>
+              <button onclick="setTestimonial(2)" class="testimonial-dot h-2 rounded-full bg-white/40 hover:bg-white/60 transition-all w-2" data-index="2"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact" class="bg-forest relative overflow-hidden">
+      <svg class="absolute top-0 left-0 w-40 h-40 opacity-[0.04]" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" stroke="white" stroke-width="0.5" fill="none"/><circle cx="50" cy="50" r="20" stroke="white" stroke-width="0.5" fill="none"/></svg>
+      <svg class="absolute bottom-0 right-0 w-48 h-48 opacity-[0.04]" viewBox="0 0 100 100"><ellipse cx="50" cy="50" rx="45" ry="35" stroke="white" stroke-width="0.5" fill="none"/></svg>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-6 relative z-10">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
+          <div>
+            <div class="flex items-center gap-2 mb-4">
+              <span class="w-9 h-9 rounded-full bg-lime flex items-center justify-center"><i data-lucide="bug" class="w-[18px] h-[18px] text-forest"></i></span>
+              <span class="font-display font-bold text-lg text-white">Bugfree</span>
+            </div>
+            <p class="text-white/70 text-sm leading-relaxed mb-6">
+              We are a trusted pest control service provider offering safe, effective, and solutions homes and businesses.
+            </p>
+            <div class="flex gap-3">
+              <a href="#" class="w-9 h-9 rounded-full border border-lime/40 flex items-center justify-center text-white/80 hover:bg-lime hover:text-forest transition-all text-xs font-bold">P</a>
+              <a href="#" class="w-9 h-9 rounded-full border border-lime/40 flex items-center justify-center text-white/80 hover:bg-lime hover:text-forest transition-all text-xs font-bold">X</a>
+              <a href="#" class="w-9 h-9 rounded-full border border-lime/40 flex items-center justify-center text-white/80 hover:bg-lime hover:text-forest transition-all text-xs font-bold">F</a>
+              <a href="#" class="w-9 h-9 rounded-full border border-lime/40 flex items-center justify-center text-white/80 hover:bg-lime hover:text-forest transition-all text-xs font-bold">I</a>
+            </div>
+          </div>
+          <div>
+            <h4 class="font-display font-semibold text-white mb-5">Quick Links</h4>
+            <ul class="space-y-3">
+              <li><a href="#" class="text-white/70 text-sm hover:text-white transition-colors flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-lime"></span>Home</a></li>
+              <li><a href="#" class="text-white/70 text-sm hover:text-white transition-colors flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-lime"></span>About Us</a></li>
+              <li><a href="#" class="text-white/70 text-sm hover:text-white transition-colors flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-lime"></span>Our Services</a></li>
+              <li><a href="#" class="text-white/70 text-sm hover:text-white transition-colors flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-lime"></span>Our Projects</a></li>
+              <li><a href="#" class="text-white/70 text-sm hover:text-white transition-colors flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-lime"></span>Pricing Plans</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-display font-semibold text-white mb-5">Our Services</h4>
+            <ul class="space-y-3">
+              <li><a href="#" class="text-white/70 text-sm hover:text-white transition-colors flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-lime"></span>Residential Pest Control</a></li>
+              <li><a href="#" class="text-white/70 text-sm hover:text-white transition-colors flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-lime"></span>Bed Bug Treatment</a></li>
+              <li><a href="#" class="text-white/70 text-sm hover:text-white transition-colors flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-lime"></span>Rodent Control</a></li>
+              <li><a href="#" class="text-white/70 text-sm hover:text-white transition-colors flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-lime"></span>Cockroach & Ant Control</a></li>
+              <li><a href="#" class="text-white/70 text-sm hover:text-white transition-colors flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-lime"></span>Termite Control</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-display font-semibold text-white mb-5">Working Hours</h4>
+            <ul class="space-y-3 text-white/70 text-sm mb-6">
+              <li class="flex items-start gap-2"><span class="w-1 h-1 rounded-full bg-lime mt-2 flex-shrink-0"></span>Monday - Saturday: 9:00 AM - 7:00 PM</li>
+              <li class="flex items-start gap-2"><span class="w-1 h-1 rounded-full bg-lime mt-2 flex-shrink-0"></span>Sunday: Emergency Services Available</li>
+            </ul>
+            <div class="flex items-center gap-3">
+              <span class="w-12 h-12 rounded-full bg-lime flex items-center justify-center flex-shrink-0">
+                <i data-lucide="headset" class="w-5 h-5 text-forest"></i>
+              </span>
+              <div>
+                <p class="text-white/60 text-xs">Contact Us!</p>
+                <p class="text-white font-semibold text-sm">+(123) 456-789</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white/10 rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row items-center gap-4 mb-8">
+          <div class="flex items-center gap-2 flex-shrink-0">
+            <span class="w-8 h-8 rounded-full bg-lime flex items-center justify-center"><i data-lucide="bug" class="w-3.5 h-3.5 text-forest"></i></span>
+            <span class="font-display font-bold text-white">Bugfree</span>
+          </div>
+          <span class="text-white font-display font-semibold text-sm hidden sm:block flex-shrink-0">Newsletter Subscription</span>
+          <div class="flex-1 w-full sm:w-auto">
+            <div class="flex gap-2">
+              <input type="email" placeholder="Enter Email Address*" class="flex-1 bg-white/15 text-white placeholder-white/50 px-4 py-3 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-lime/50">
+              <button class="px-5 py-3 bg-white text-forest font-semibold text-sm rounded-lg hover:bg-lime transition-colors flex items-center gap-2 flex-shrink-0">
+                Subscribe <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="text-center text-white/50 text-sm pt-6 border-t border-white/10">
+          Copyright &copy; 2026 All Rights Reserved.
+        </div>
+      </div>
+    </footer>
+
+  </div><!-- /content layer -->
+
+  <script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+
+    // ============ FIREFLY CANVAS ============
+    (function() {
+      const canvas = document.getElementById('fireflyCanvas');
+      const ctx = canvas.getContext('2d');
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      let w, h;
+
+      function resize() {
+        w = window.innerWidth;
+        h = window.innerHeight;
+        canvas.width = w * dpr;
+        canvas.height = h * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+      resize();
+
+      const mouse = { x: -200, y: -200 };
+      const count = window.innerWidth < 768 ? 200 : 400;
+      const particles = [];
+
+      for (let i = 0; i < count; i++) {
+        const x = Math.random() * w;
+        particles.push({
+          x, y: Math.random() * h,
+          baseX: x, baseY: Math.random() * h,
+          size: 1 + Math.random() * 2,
+          sx: (Math.random() - 0.5) * 0.5,
+          sy: (Math.random() - 0.5) * 0.5,
+          op: 0.3 + Math.random() * 0.7,
+          pulse: Math.random() * Math.PI * 2,
+        });
+      }
+
+      document.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+      document.addEventListener('touchmove', e => { if (e.touches[0]) { mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY; } }, { passive: true });
+      window.addEventListener('resize', () => { resize(); });
+
+      let time = 0;
+      function animate() {
+        time++;
+        ctx.clearRect(0, 0, w, h);
+
+        let mx = mouse.x, my = mouse.y;
+        if (mx < 0 || my < 0) {
+          mx = w / 2 + Math.cos(time * 0.008) * 120;
+          my = h / 2 + Math.sin(time * 0.008) * 120;
+        }
+
+        for (const p of particles) {
+          const drift = Math.sin(time * 0.02 + p.pulse) * 0.3;
+          p.x += p.sx + drift;
+          p.y += p.sy + Math.cos(time * 0.015 + p.pulse) * 0.2;
+          const dx = p.x - mx, dy = p.y - my, dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 100 && dist > 0) {
+            const force = (100 - dist) * 0.02;
+            p.x += (dx / dist) * force;
+            p.y += (dy / dist) * force;
+          }
+          p.x += (p.baseX - p.x) * 0.005;
+          p.y += (p.baseY - p.y) * 0.005;
+          if (p.x < -20) p.x = w + 20; if (p.x > w + 20) p.x = -20;
+          if (p.y < -20) p.y = h + 20; if (p.y > h + 20) p.y = -20;
+        }
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(mx, my, 150, 0, Math.PI * 2);
+        ctx.clip();
+
+        for (const p of particles) {
+          const cOp = p.op * Math.abs(Math.sin(time * 0.02 + p.pulse));
+          const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 4);
+          g.addColorStop(0, 'rgba(216,243,161,' + cOp + ')');
+          g.addColorStop(0.5, 'rgba(216,243,161,' + (cOp * 0.3) + ')');
+          g.addColorStop(1, 'rgba(216,243,161,0)');
+          ctx.fillStyle = g;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size * 4, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+
+        const gg = ctx.createRadialGradient(mx, my, 140, mx, my, 170);
+        gg.addColorStop(0, 'rgba(216,243,161,0.15)');
+        gg.addColorStop(1, 'rgba(216,243,161,0)');
+        ctx.fillStyle = gg;
+        ctx.beginPath();
+        ctx.arc(mx, my, 170, 0, Math.PI * 2);
+        ctx.fill();
+
+        requestAnimationFrame(animate);
+      }
+      animate();
+    })();
+
+    // ============ NAVBAR SCROLL ============
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) {
+        navbar.classList.add('bg-white/90', 'backdrop-blur-xl', 'shadow-lg');
+        navbar.classList.remove('bg-transparent');
+      } else {
+        navbar.classList.remove('bg-white/90', 'backdrop-blur-xl', 'shadow-lg');
+        navbar.classList.add('bg-transparent');
+      }
+    });
+
+    // ============ MOBILE MENU ============
+    const menuBtn = document.getElementById('menuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    menuBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+    document.querySelectorAll('.mobile-link').forEach(link => {
+      link.addEventListener('click', () => mobileMenu.classList.add('hidden'));
+    });
+
+    // ============ INTERSECTION OBSERVER FOR ANIMATIONS ============
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const delay = entry.target.dataset.delay || 0;
+          setTimeout(() => {
+            entry.target.classList.add('visible');
+          }, parseInt(delay));
+
+          // Counter animation for stats
+          if (entry.target.classList.contains('stat-item')) {
+            const target = parseFloat(entry.target.dataset.target);
+            const suffix = entry.target.dataset.suffix;
+            const isDecimal = entry.target.dataset.decimal === 'true';
+            const counterEl = entry.target.querySelector('.counter');
+            if (counterEl) {
+              const duration = 1500;
+              const start = Date.now();
+              const tick = () => {
+                const elapsed = Date.now() - start;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                counterEl.textContent = isDecimal ? (eased * target).toFixed(1) : Math.floor(eased * target);
+                if (progress < 1) requestAnimationFrame(tick);
+              };
+              requestAnimationFrame(tick);
+            }
+          }
+
+          // Prohibition line draw
+          if (entry.target.classList.contains('pest-item')) {
+            const line = entry.target.querySelector('.prohibition-line');
+            if (line) line.style.strokeDashoffset = '0';
+          }
+
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale, .stat-item, .pest-item').forEach(el => observer.observe(el));
+
+    // ============ TESTIMONIAL CAROUSEL ============
+    const testimonials = [
+      { quote: 'Excellent service from start to finish. The team was professional, punctual and completely eliminated our pest problem. Highly recommended reliable & affordable pest control services. They follow safety standards strictly, which is crucial for our business. Very happy with the results. The technicians were knowledgeable & explained everything clearly. Fast response!', name: 'Michael Brown', role: 'Pest Control Technician', avatar: 'M' },
+      { quote: 'The team arrived on time and was very thorough in their inspection. They identified the source of our ant problem and treated it effectively. We have not seen any ants since. Great customer service and fair pricing. Would definitely recommend!', name: 'Kristin Watson', role: 'Homeowner', avatar: 'K' },
+      { quote: 'We had a severe bed bug infestation and Bugfree handled it professionally. The follow-up visits ensured the problem was completely gone. Their eco-friendly approach was important for our family with young children.', name: 'Amit Singh', role: 'Warehouse Supervisor', avatar: 'A' },
+    ];
+
+    function setTestimonial(index) {
+      const t = testimonials[index];
+      const container = document.getElementById('testimonialContent');
+      container.innerHTML = `
+        <p class="text-white/85 leading-relaxed mb-6 text-base">${t.quote}</p>
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-12 h-12 rounded-full bg-lime flex items-center justify-center">
+            <span class="font-display font-bold text-forest">${t.avatar}</span>
+          </div>
+          <div>
+            <p class="font-display font-semibold text-white">${t.name}</p>
+            <p class="text-sm text-white/60">${t.role}</p>
+          </div>
+        </div>
+      `;
+      document.querySelectorAll('.testimonial-dot').forEach((dot, i) => {
+        dot.className = 'testimonial-dot h-2 rounded-full transition-all ' + (i === index ? 'bg-lime w-6' : 'bg-white/40 hover:bg-white/60 w-2');
+      });
+    }
+  </script>
+</body>
+</html>

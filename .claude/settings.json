@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git init *)",
+      "Bash(git branch *)",
+      "Bash(node .agents/skills/impeccable/scripts/load-context.mjs)",
+      "Bash(node /home/jusevelez/.claude/skills/impeccable/scripts/load-context.mjs)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code} · %{size_download} bytes\\\\n\" http://127.0.0.1:5174/)",
+      "Bash(curl -s http://127.0.0.1:5174/)",
+      "Skill(agent-browser)",
+      "Skill(agent-browser:*)",
+      "Bash(curl -s http://127.0.0.1:5174/src/main.js)",
+      "Bash(agent-browser open *)",
+      "Bash(agent-browser wait *)",
+      "Bash(agent-browser screenshot *)",
+      "Bash(agent-browser scroll *)",
+      "WebFetch(domain:unsplash.com)",
+      "Bash(agent-browser eval *)",
+      "Bash(rm -rf v1/node_modules && rm -rf \"V2/Kimi_Agent_Insectra Theme Replication/app\" && rm -f \"V2/Kimi_Agent_Insectra Theme Replication.zip\" \"V2/Kimi_Agent_Insectra Theme Replication/bugfree-html.zip\" && rm -f \"V2/Kimi_Agent_Insectra Theme Replication\"/*.png && echo \"Limpieza fase 1 OK\")",
+      "Bash(git config *)"
+    ],
+    "additionalDirectories": [
+      "/home/jusevelez/Work/OWD/exclusive-pest-solution/V2/Kimi_Agent_Insectra Theme Replication"
+    ]
+  }
+}
