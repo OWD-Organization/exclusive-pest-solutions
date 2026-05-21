@@ -4,3 +4,11 @@ dist
 .vite
 *.local
 .env*
+*.zip
+.claude/
+*.heic
+*.HEIC
+*.mov
+*.MOV
+*.mp4
+*.MP4
