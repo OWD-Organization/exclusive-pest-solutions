@@ -17,7 +17,13 @@
       "WebFetch(domain:unsplash.com)",
       "Bash(agent-browser eval *)",
       "Bash(rm -rf v1/node_modules && rm -rf \"V2/Kimi_Agent_Insectra Theme Replication/app\" && rm -f \"V2/Kimi_Agent_Insectra Theme Replication.zip\" \"V2/Kimi_Agent_Insectra Theme Replication/bugfree-html.zip\" && rm -f \"V2/Kimi_Agent_Insectra Theme Replication\"/*.png && echo \"Limpieza fase 1 OK\")",
-      "Bash(git config *)"
+      "Bash(git config *)",
+      "Bash(python3 -c ' *)",
+      "Bash(python3 -m http.server 8088)",
+      "Bash(curl -s -o /dev/null -w \"scorpion-control.html → HTTP %{http_code} · %{size_download} bytes\\\\n\" http://localhost:8088/scorpion-control.html)",
+      "Bash(curl -s -o /dev/null -w \"index.html → HTTP %{http_code}\\\\n\" http://localhost:8088/index.html)",
+      "Bash(curl -s -o /dev/null -w \"ant-control.html → HTTP %{http_code} · %{size_download} bytes\\\\n\" http://localhost:8088/ant-control.html)",
+      "Bash(curl -s -o /dev/null -w \"scorpion-control.html → HTTP %{http_code}\\\\n\" http://localhost:8088/scorpion-control.html)"
     ],
     "additionalDirectories": [
       "/home/jusevelez/Work/OWD/exclusive-pest-solution/V2/Kimi_Agent_Insectra Theme Replication"

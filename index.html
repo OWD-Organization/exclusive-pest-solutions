@@ -116,10 +116,14 @@
       }
     }
 
+    #navbar { background: transparent; transition: background 0.3s ease, backdrop-filter 0.3s ease, box-shadow 0.3s ease; }
+    #navbar.scrolled { background: rgba(75, 79, 82, 0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: 0 10px 25px -10px rgba(0,0,0,0.3); }
     #navbar .nav-inner { height: 112px; transition: height 0.3s ease; }
     #navbar .nav-logo { height: 96px; transition: height 0.3s ease; }
     #navbar.scrolled .nav-inner { height: 82px; }
     #navbar.scrolled .nav-logo { height: 66px; }
+
+    .nav-dropdown { background: rgba(75, 79, 82, 0.98); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
   </style>
 </head>
 <body class="font-body">
@@ -140,7 +144,29 @@
           <div class="hidden lg:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
             <a href="#home" class="flex items-center gap-1 text-sm font-medium text-white hover:text-lime transition-colors">Home</a>
             <a href="#about" class="flex items-center gap-1 text-sm font-medium text-white hover:text-lime transition-colors">About</a>
-            <a href="#services" class="flex items-center gap-1 text-sm font-medium text-white hover:text-lime transition-colors">Services</a>
+            <div class="relative group">
+              <a href="#services" class="flex items-center gap-1 text-sm font-medium text-white hover:text-lime transition-colors py-2">
+                Services
+                <i data-lucide="chevron-down" class="w-3.5 h-3.5 group-hover:rotate-180 transition-transform"></i>
+              </a>
+              <div class="absolute top-full left-1/2 -translate-x-1/2 pt-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                <div class="nav-dropdown w-60 border border-white/10 rounded-lg shadow-xl py-2">
+                  <a href="scorpion-control.html" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-white hover:bg-white/10 hover:text-lime transition-colors">
+                    <i data-lucide="target" class="w-3.5 h-3.5 text-lime"></i>
+                    Scorpion Control
+                  </a>
+                  <a href="ant-control.html" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-white hover:bg-white/10 hover:text-lime transition-colors">
+                    <i data-lucide="git-branch" class="w-3.5 h-3.5 text-lime"></i>
+                    Ant Control
+                  </a>
+                  <div class="border-t border-white/10 my-1"></div>
+                  <a href="#services" class="flex items-center justify-between gap-2 px-4 py-2 text-xs text-white/60 hover:text-white hover:bg-white/5 transition-colors">
+                    View all services
+                    <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
             <a href="#process" class="flex items-center gap-1 text-sm font-medium text-white hover:text-lime transition-colors">Process</a>
             <a href="#contact" class="flex items-center gap-1 text-sm font-medium text-white hover:text-lime transition-colors">Contact</a>
           </div>
@@ -155,11 +181,21 @@
           </button>
         </div>
       </div>
-      <div id="mobileMenu" class="hidden lg:hidden bg-forest/95 backdrop-blur-xl border-t border-white/10">
-        <div class="px-4 py-4 space-y-3">
+      <div id="mobileMenu" class="hidden lg:hidden nav-dropdown border-t border-white/10">
+        <div class="px-4 py-4 space-y-1">
           <a href="#home" class="block py-2 text-sm font-medium text-white mobile-link">Home</a>
           <a href="#about" class="block py-2 text-sm font-medium text-white mobile-link">About</a>
-          <a href="#services" class="block py-2 text-sm font-medium text-white mobile-link">Services</a>
+          <details class="group">
+            <summary class="flex items-center justify-between py-2 text-sm font-medium text-white cursor-pointer list-none">
+              <span>Services</span>
+              <i data-lucide="chevron-down" class="w-4 h-4 group-open:rotate-180 transition-transform"></i>
+            </summary>
+            <div class="pl-4 mt-1 space-y-1 border-l-2 border-white/10">
+              <a href="scorpion-control.html" class="block py-2 text-sm text-white/85 hover:text-lime mobile-link">Scorpion Control</a>
+              <a href="ant-control.html" class="block py-2 text-sm text-white/85 hover:text-lime mobile-link">Ant Control</a>
+              <a href="#services" class="block py-2 text-xs text-white/60 mobile-link">View all services →</a>
+            </div>
+          </details>
           <a href="#process" class="block py-2 text-sm font-medium text-white mobile-link">Process</a>
           <a href="#contact" class="block py-2 text-sm font-medium text-white mobile-link">Contact</a>
         </div>
@@ -184,7 +220,7 @@
           <h1 class="font-display font-extrabold text-white text-4xl sm:text-5xl lg:text-6xl leading-[1.1] mt-6 mb-5 animate-fade-in-up" style="animation-delay:0.4s">
             Smarter Pest Control. <span class="text-lime">Built Around You.</span>
           </h1>
-          <p class="text-white/85 text-base sm:text-lg leading-relaxed mb-8 max-w-xl animate-fade-in-up" style="animation-delay:0.6s">
+          <p class="text-white text-base sm:text-lg leading-relaxed mb-8 max-w-xl animate-fade-in-up" style="animation-delay:0.6s">
             Not a spray-and-go service. Every treatment is engineered around your home, your pests, and Arizona's unique desert ecosystem.
           </p>
           <div class="flex flex-wrap gap-4 sm:gap-8 mb-8 animate-fade-in-up" style="animation-delay:0.8s">
@@ -291,7 +327,7 @@
             </div>
             <h3 class="font-display font-semibold text-forest text-lg mt-6 mb-2">Scorpion Control</h3>
             <p class="text-gray-600 text-sm mb-4 max-w-xs mx-auto">Targeted elimination of the Arizona bark scorpion — Valley-wide.</p>
-            <a href="#contact" class="inline-flex items-center gap-1 text-brand font-medium text-sm hover:underline">Learn More <i data-lucide="arrow-right" class="w-4 h-4"></i></a>
+            <a href="scorpion-control.html" class="inline-flex items-center gap-1 text-brand font-medium text-sm hover:underline">Learn More <i data-lucide="arrow-right" class="w-4 h-4"></i></a>
           </div>
           <!-- Service Card 2 — General Pest -->
           <div class="reveal group bg-warm-sand rounded-2xl p-6 text-center border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300" data-delay="150">
@@ -757,7 +793,7 @@
           <div>
             <h4 class="font-display font-semibold text-white mb-5">Our Services</h4>
             <ul class="space-y-3">
-              <li><a href="#services" class="text-white/70 text-sm hover:text-white transition-colors flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-lime"></span>Scorpion Control</a></li>
+              <li><a href="scorpion-control.html" class="text-white/70 text-sm hover:text-white transition-colors flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-lime"></span>Scorpion Control</a></li>
               <li><a href="#services" class="text-white/70 text-sm hover:text-white transition-colors flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-lime"></span>General Pest Control</a></li>
               <li><a href="#services" class="text-white/70 text-sm hover:text-white transition-colors flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-lime"></span>Garden-Safe Treatments</a></li>
               <li><a href="#services" class="text-white/70 text-sm hover:text-white transition-colors flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-lime"></span>Wildlife-Conscious Solutions</a></li>
@@ -916,11 +952,9 @@
     const navbar = document.getElementById('navbar');
     window.addEventListener('scroll', () => {
       if (window.scrollY > 50) {
-        navbar.classList.add('bg-forest/95', 'backdrop-blur-xl', 'shadow-lg', 'scrolled');
-        navbar.classList.remove('bg-transparent');
+        navbar.classList.add('scrolled');
       } else {
-        navbar.classList.remove('bg-forest/95', 'backdrop-blur-xl', 'shadow-lg', 'scrolled');
-        navbar.classList.add('bg-transparent');
+        navbar.classList.remove('scrolled');
       }
     });
 
