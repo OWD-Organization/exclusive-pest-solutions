@@ -1,0 +1,6 @@
+# Internal working notes and tooling (not part of the public site)
+*.md
+seo-website-copy/
+logo/
+.claude/
+.vscode/
